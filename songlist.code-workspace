@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "songlist",
+			"path": "."
+		},
+		{
+			"name": "assets",
+			"path": "../nlfbc-song/assets"
+		}
+	],
+	"settings": {}
+}
