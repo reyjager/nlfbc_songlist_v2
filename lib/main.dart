@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'models/worship_service_model.dart';
 import 'modules/home/home_view.dart';
+import 'modules/tour/tour_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await WorshipServiceStorage.init();
-  runApp(const MyApp());
+  final prefs = await SharedPreferences.getInstance();
+  final tourCompleted = prefs.getBool('tour_completed') ?? false;
+  runApp(MyApp(showTour: !tourCompleted));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool showTour;
+  const MyApp({super.key, required this.showTour});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Song List',
       theme: ThemeData(primarySwatch: Colors.purple),
-      home: const HomeView(),
+      home: showTour ? const TourView() : const HomeView(),
     );
   }
 }
