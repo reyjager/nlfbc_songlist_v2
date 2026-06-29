@@ -11,11 +11,11 @@ Chorus
 [G]How marvelous! How wonderful!
 [D]And my song shall ever be:
 [G]How marvelous! How wonderful
-[Am7]Is my [G]Savior’s [D]love for[G] me.
+[Am7]Is my [G]Savior's [D]love for[G] me.
 
 II 
 [G]For me it was in the garden
-He [D]prayed, “Not my [G]will, but thine.”
+He [D]prayed, Not my [G]will, but thine.
 He [C]had no tears for his own [G]griefs,
 But [D]sweat drops of blood for [G]mine.
 
@@ -28,7 +28,7 @@ He [D]bore for my soul [G]that night.
 IV
 [G]He took my sins and my sorrows,
 He [D]made them his very [G]own;
-He [C]bore the [G]burden to Calv’ry,
+He [C]bore the [G]burden to Calv'ry,
 And [D]suffered, and died [G]alone.
 
 V

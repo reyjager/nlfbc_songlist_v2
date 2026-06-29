@@ -22,7 +22,7 @@ class SongViewModel extends ChangeNotifier {
 
   Future<void> loadSong(String file) async {
     fileName = file;
-    chordProText = await storage.readSong(file);
+    chordProText = (await storage.readSong(file)).replaceAll('&quot;', '');
     notifyListeners();
   }
 

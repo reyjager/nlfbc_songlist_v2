@@ -51,7 +51,7 @@ class SonglistViewState extends State<SonglistView> {
                       return Card(
                         child: ListTile(
                           title: Text(
-                            viewModel.songFiles[index].replaceAll('.txt', ''),
+                            viewModel.songFiles[index].replaceAll('.txt', '').replaceAll('&quot;', ''),
                             style: const TextStyle(color: AppColors.onSurface),
                           ),
                           trailing: const Icon(Icons.chevron_right, color: AppColors.onSurface),

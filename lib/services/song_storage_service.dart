@@ -4,7 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SongStorageService {
-  static const initKey = 'songs_initialized';
+  static const initKey = 'songs_version';
+  static const currentVersion = 2;
 
   Future<Directory> get songsDir async {
     final appDir = await getApplicationDocumentsDirectory();
@@ -15,8 +16,18 @@ class SongStorageService {
 
   Future<void> initializeIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(initKey) == true) return;
+    if (prefs.getInt(initKey) == currentVersion) return;
+    await _copyAssets();
+    await prefs.setInt(initKey, currentVersion);
+  }
 
+  Future<void> reinitialize() async {
+    final prefs = await SharedPreferences.getInstance();
+    await _copyAssets();
+    await prefs.setInt(initKey, currentVersion);
+  }
+
+  Future<void> _copyAssets() async {
     final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     final assets = manifest
         .listAssets()
@@ -29,8 +40,6 @@ class SongStorageService {
       final fileName = asset.split('/').last;
       await File('${dir.path}/$fileName').writeAsString(content);
     }
-
-    await prefs.setBool(initKey, true);
   }
 
   Future<List<String>> getSongFiles() async {

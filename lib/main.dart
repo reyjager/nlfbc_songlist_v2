@@ -6,11 +6,13 @@ import 'app_theme.dart';
 import 'models/worship_service_model.dart';
 import 'modules/home/home_view.dart';
 import 'modules/tour/tour_view.dart';
+import 'services/song_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await WorshipServiceStorage.init();
+  await SongStorageService().initializeIfNeeded();
   final prefs = await SharedPreferences.getInstance();
   final tourCompleted = prefs.getBool('tour_completed') ?? false;
   runApp(MyApp(showTour: !tourCompleted));

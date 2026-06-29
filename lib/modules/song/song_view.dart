@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:share_plus/share_plus.dart';
 import '../../app_theme.dart';
 import 'song_viewmodel.dart';
 import 'song_edit_view.dart';
@@ -30,8 +31,7 @@ class SongView extends StatelessWidget {
   }
 
   Future<void> savePdf(BuildContext context) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$title.pdf');
+    final file = File('/storage/emulated/0/Download/$title.pdf');
 
     if (!context.mounted) return;
     final shouldSave = await Navigator.of(context).push<bool>(
@@ -214,7 +214,10 @@ class PdfPreviewPageState extends State<PdfPreviewPage> {
     );
     content.add(pw.SizedBox(height: 12));
 
-    for (final line in widget.viewModel.lines) {
+    for (int i = 0; i < widget.viewModel.lines.length; i++) {
+      final line = widget.viewModel.lines[i];
+      if (i == 0) continue;
+
       if (line.trim().isEmpty) {
         content.add(pw.SizedBox(height: 8));
         continue;
@@ -254,13 +257,9 @@ class PdfPreviewPageState extends State<PdfPreviewPage> {
                 fontSize: chordSize,
                 fontWeight: pw.FontWeight.bold,
                 color: PdfColors.red,
-                font: pw.Font.courierBold(),
               ),
             ),
-            pw.Text(
-              lyricLine,
-              style: pw.TextStyle(fontSize: lyricSize, font: pw.Font.courier()),
-            ),
+            pw.Text(lyricLine, style: pw.TextStyle(fontSize: lyricSize)),
           ],
         ),
       );
@@ -336,23 +335,43 @@ class PdfPreviewPageState extends State<PdfPreviewPage> {
   }
 
   Future<void> saveFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/${widget.title}.pdf');
-    final bytes = await buildPdf();
-    await file.writeAsBytes(bytes);
-    if (!mounted) return;
-    Navigator.of(context).pop(true);
+    final dir = Directory('/storage/emulated/0/Download');
+    try {
+      final filePath = '${dir.path}/${widget.title}.pdf';
+      final file = File(filePath);
+      final bytes = await buildPdf();
+      await file.writeAsBytes(bytes);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Saved to Downloads: ${widget.title}.pdf'),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      // Fallback: use share if permission fails
+      if (!mounted) return;
+      final tempDir = await getApplicationDocumentsDirectory();
+      final filePath = '${tempDir.path}/${widget.title}.pdf';
+      final file = File(filePath);
+      final bytes = await buildPdf();
+      await file.writeAsBytes(bytes);
+      if (!mounted) return;
+      await Share.shareXFiles([XFile(filePath)], subject: widget.title);
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    }
   }
 
   List<Widget> buildPreviewContent() {
-    final pdfTitle = widget.fileName.replaceAll('.txt', '');
     final chordSize = lyricSize - 2;
     final lines = widget.viewModel.lines;
     final widgets = <Widget>[];
 
     widgets.add(
       Text(
-        pdfTitle,
+        widget.fileName.replaceAll('.txt', ''),
         style: TextStyle(fontSize: lyricSize + 9, fontWeight: FontWeight.bold),
       ),
     );
@@ -360,7 +379,7 @@ class PdfPreviewPageState extends State<PdfPreviewPage> {
 
     for (int i = 0; i < lines.length; i++) {
       final line = lines[i];
-      if (i == 0 && line.trim() == pdfTitle) continue;
+      if (i == 0) continue;
 
       if (line.trim().isEmpty) {
         widgets.add(const SizedBox(height: 8));
@@ -401,13 +420,9 @@ class PdfPreviewPageState extends State<PdfPreviewPage> {
                 fontSize: chordSize,
                 fontWeight: FontWeight.bold,
                 color: Colors.red,
-                fontFamily: 'Courier',
               ),
             ),
-            Text(
-              lyricLine,
-              style: TextStyle(fontSize: lyricSize, fontFamily: 'Courier'),
-            ),
+            Text(lyricLine, style: TextStyle(fontSize: lyricSize)),
           ],
         ),
       );
@@ -441,60 +456,65 @@ class PdfPreviewPageState extends State<PdfPreviewPage> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.text_decrease),
-              onPressed: lyricSize > 8
-                  ? () {
-                      lyricSize -= 1;
-                      generatePreview();
-                    }
-                  : null,
-            ),
-            Text('${lyricSize.toInt()}', style: const TextStyle(fontSize: 16)),
-            IconButton(
-              icon: const Icon(Icons.text_increase),
-              onPressed: () {
-                lyricSize += 1;
-                generatePreview();
-              },
-            ),
-            const Spacer(),
-            ChoiceChip(
-              label: const Text('1 Col'),
-              selected: columns == 1,
-              onSelected: (selected) {
-                if (selected) {
-                  columns = 1;
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.text_decrease),
+                onPressed: lyricSize > 8
+                    ? () {
+                        lyricSize -= 1;
+                        generatePreview();
+                      }
+                    : null,
+              ),
+              Text(
+                '${lyricSize.toInt()}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              IconButton(
+                icon: const Icon(Icons.text_increase),
+                onPressed: () {
+                  lyricSize += 1;
                   generatePreview();
-                }
-              },
-            ),
-            const SizedBox(width: 8),
-            ChoiceChip(
-              label: const Text('2 Col'),
-              selected: columns == 2,
-              onSelected: (selected) {
-                if (selected) {
-                  columns = 2;
-                  generatePreview();
-                }
-              },
-            ),
-          ],
+                },
+              ),
+              const Spacer(),
+              ChoiceChip(
+                label: const Text('1 Col'),
+                selected: columns == 1,
+                onSelected: (selected) {
+                  if (selected) {
+                    columns = 1;
+                    generatePreview();
+                  }
+                },
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                label: const Text('2 Col'),
+                selected: columns == 2,
+                onSelected: (selected) {
+                  if (selected) {
+                    columns = 2;
+                    generatePreview();
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
       body: loading

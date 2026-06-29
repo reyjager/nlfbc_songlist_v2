@@ -13,7 +13,7 @@ class SonglistViewModel extends ChangeNotifier {
   List<String> get songFiles => filteredFiles;
 
   List<String> get songTitles => filteredFiles.map((f) {
-    var name = f.replaceAll('.txt', '');
+    var name = f.replaceAll('.txt', '').replaceAll('&quot;', '');
     var spaceIndex = name.indexOf(' ');
     if (spaceIndex > 0) {
       name = name.substring(spaceIndex + 1);

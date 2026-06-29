@@ -17,7 +17,7 @@ And hath shed His own blood for my soul.
 
 III 
 My sin, oh, the bliss of this glorious thought! 
-My sin, not in part "../song_list_text"but the whole, 
+My sin, not in part ../song_list_textbut the whole, 
 Is nailed to the cross, and | bear it no more,
 Praise the [C]Lord, praise the [F]Lord, [G]O my soul!
 

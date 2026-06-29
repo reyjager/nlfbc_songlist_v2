@@ -50,6 +50,13 @@ class TourViewState extends State<TourView> {
           'View chords aligned above lyrics with transpose and font size controls for easy reading.',
       color: AppColors.primaryLight,
     ),
+    TourPage(
+      icon: Icons.picture_as_pdf,
+      title: 'Save as PDF',
+      description:
+          'Download any song as a PDF file. Adjust font size and columns before saving to your device.',
+      color: AppColors.accent,
+    ),
   ];
 
   Future<void> finishTour() async {
@@ -80,10 +87,7 @@ class TourViewState extends State<TourView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextButton(
-                    onPressed: finishTour,
-                    child: const Text('Skip'),
-                  ),
+                  TextButton(onPressed: finishTour, child: const Text('Skip')),
                   Row(
                     children: List.generate(
                       pages.length,
