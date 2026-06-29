@@ -27,24 +27,24 @@ class WorshipServiceModel {
 }
 
 class WorshipServiceStorage {
-  static const _boxName = 'worship_services';
+  static const boxName = 'worship_services';
 
-  static Future<void> init() async => await Hive.openBox(_boxName);
+  static Future<void> init() async => await Hive.openBox(boxName);
 
-  static Box get _box => Hive.box(_boxName);
+  static Box get box => Hive.box(boxName);
 
   static List<WorshipServiceModel> getAll() {
-    return _box.values
+    return box.values
         .map((e) => WorshipServiceModel.fromMap(Map<dynamic, dynamic>.from(e)))
         .toList()
       ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   static Future<void> save(WorshipServiceModel service) async {
-    await _box.put(service.name, service.toMap());
+    await box.put(service.name, service.toMap());
   }
 
   static Future<void> delete(String name) async {
-    await _box.delete(name);
+    await box.delete(name);
   }
 }

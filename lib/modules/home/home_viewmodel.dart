@@ -6,5 +6,5 @@ import '../bible/bible_view.dart';
 class HomeViewModel {
   void goToSongList() => Get.to(() => const SonglistView());
   void goToWorshipService() => Get.to(() => const WorshipServiceView());
-  void goToBible() => Get.to(() => BibleView());
+  void goToBible() => Get.to(() => const BibleView());
 }

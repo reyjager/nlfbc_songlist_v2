@@ -1,62 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../app_theme.dart';
 import '../home/home_view.dart';
 
 class TourView extends StatefulWidget {
   const TourView({super.key});
 
   @override
-  State<TourView> createState() => _TourViewState();
+  State<TourView> createState() => TourViewState();
 }
 
-class _TourViewState extends State<TourView> {
-  final _controller = PageController();
-  int _currentPage = 0;
+class TourViewState extends State<TourView> {
+  final controller = PageController();
+  int currentPage = 0;
 
-  static const _pages = [
-    _TourPage(
+  static const pages = [
+    TourPage(
       icon: Icons.library_music,
       title: 'Song List',
       description:
           'Browse through 166+ hymns and worship songs. Find your favorites quickly with search.',
-      color: Colors.purple,
+      color: AppColors.primary,
     ),
-    _TourPage(
+    TourPage(
       icon: Icons.church,
       title: 'Worship Service Planner',
       description:
           'Plan your worship services by assigning songs to specific dates. Stay organized every Sunday.',
-      color: Colors.deepPurple,
+      color: AppColors.primaryLight,
     ),
-    _TourPage(
+    TourPage(
       icon: Icons.book,
       title: 'KJV Bible Reader',
       description:
           'Read the King James Version Bible offline. All 66 books at your fingertips.',
-      color: Colors.indigo,
+      color: AppColors.primary,
     ),
-    _TourPage(
+    TourPage(
       icon: Icons.edit_note,
       title: 'Song Editor',
       description:
           'Edit song lyrics and chords to match your worship style and preferences.',
-      color: Colors.teal,
+      color: AppColors.accent,
     ),
-    _TourPage(
+    TourPage(
       icon: Icons.music_note,
       title: 'Chord & Lyric Display',
       description:
           'View chords aligned above lyrics with transpose and font size controls for easy reading.',
-      color: Colors.deepOrange,
+      color: AppColors.primaryLight,
     ),
   ];
 
-  Future<void> _finishTour() async {
+  Future<void> finishTour() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('tour_completed', true);
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const HomeView()),
+      MaterialPageRoute(builder: (context) => const HomeView()),
     );
   }
 
@@ -68,10 +69,10 @@ class _TourViewState extends State<TourView> {
           children: [
             Expanded(
               child: PageView.builder(
-                controller: _controller,
-                itemCount: _pages.length,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                itemBuilder: (_, i) => _pages[i],
+                controller: controller,
+                itemCount: pages.length,
+                onPageChanged: (i) => setState(() => currentPage = i),
+                itemBuilder: (context, i) => pages[i],
               ),
             ),
             Padding(
@@ -80,44 +81,36 @@ class _TourViewState extends State<TourView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton(
-                    onPressed: _finishTour,
+                    onPressed: finishTour,
                     child: const Text('Skip'),
                   ),
                   Row(
                     children: List.generate(
-                      _pages.length,
+                      pages.length,
                       (i) => Container(
                         margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: _currentPage == i ? 12 : 8,
+                        width: currentPage == i ? 12 : 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: _currentPage == i
-                              ? Colors.purpleAccent
+                          color: currentPage == i
+                              ? AppColors.primary
                               : Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
                   ),
-                  _currentPage == _pages.length - 1
+                  currentPage == pages.length - 1
                       ? ElevatedButton(
-                          onPressed: _finishTour,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purpleAccent,
-                          ),
-                          child: const Text('Get Started',
-                              style: TextStyle(color: Colors.white)),
+                          onPressed: finishTour,
+                          child: const Text('Get Started'),
                         )
                       : ElevatedButton(
-                          onPressed: () => _controller.nextPage(
+                          onPressed: () => controller.nextPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purpleAccent,
-                          ),
-                          child: const Text('Next',
-                              style: TextStyle(color: Colors.white)),
+                          child: const Text('Next'),
                         ),
                 ],
               ),
@@ -129,13 +122,14 @@ class _TourViewState extends State<TourView> {
   }
 }
 
-class _TourPage extends StatelessWidget {
+class TourPage extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
   final Color color;
 
-  const _TourPage({
+  const TourPage({
+    super.key,
     required this.icon,
     required this.title,
     required this.description,
@@ -152,7 +146,7 @@ class _TourPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 80, color: color),

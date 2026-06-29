@@ -4,15 +4,15 @@ import '../../services/song_storage_service.dart';
 import '../song/song_view.dart';
 
 class SonglistViewModel extends ChangeNotifier {
-  final _storage = SongStorageService();
+  final storage = SongStorageService();
 
-  List<String> _songFiles = [];
-  List<String> _filteredFiles = [];
-  String _query = '';
+  List<String> allSongFiles = [];
+  List<String> filteredFiles = [];
+  String query = '';
 
-  List<String> get songFiles => _filteredFiles;
+  List<String> get songFiles => filteredFiles;
 
-  List<String> get songTitles => _filteredFiles.map((f) {
+  List<String> get songTitles => filteredFiles.map((f) {
     var name = f.replaceAll('.txt', '');
     var spaceIndex = name.indexOf(' ');
     if (spaceIndex > 0) {
@@ -21,22 +21,22 @@ class SonglistViewModel extends ChangeNotifier {
     return name;
   }).toList();
 
-  void search(String query) {
-    _query = query.toLowerCase();
-    _filteredFiles = _songFiles
-        .where((f) => f.toLowerCase().contains(_query))
+  void search(String searchQuery) {
+    query = searchQuery.toLowerCase();
+    filteredFiles = allSongFiles
+        .where((f) => f.toLowerCase().contains(query))
         .toList();
     notifyListeners();
   }
 
   Future<void> loadSongs() async {
-    await _storage.initializeIfNeeded();
-    _songFiles = await _storage.getSongFiles();
-    _filteredFiles = _songFiles;
+    await storage.initializeIfNeeded();
+    allSongFiles = await storage.getSongFiles();
+    filteredFiles = allSongFiles;
     notifyListeners();
   }
 
-  String getFileName(int index) => _filteredFiles[index];
+  String getFileName(int index) => filteredFiles[index];
 
   void goToSong(int index) {
     Get.to(() => SongView(

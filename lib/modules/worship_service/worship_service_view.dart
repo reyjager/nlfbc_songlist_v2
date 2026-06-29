@@ -1,60 +1,74 @@
 import 'package:flutter/material.dart';
+import '../../app_theme.dart';
 import 'worship_service_viewmodel.dart';
 
 class WorshipServiceView extends StatefulWidget {
   const WorshipServiceView({super.key});
 
   @override
-  State<WorshipServiceView> createState() => _WorshipServiceViewState();
+  State<WorshipServiceView> createState() => WorshipServiceViewState();
 }
 
-class _WorshipServiceViewState extends State<WorshipServiceView> {
-  final _viewModel = WorshipServiceViewModel();
+class WorshipServiceViewState extends State<WorshipServiceView> {
+  final viewModel = WorshipServiceViewModel();
 
   @override
   void initState() {
     super.initState();
-    _viewModel.addListener(() => setState(() {}));
-    _viewModel.loadSongs();
+    viewModel.addListener(() => setState(() {}));
+    viewModel.loadSongs();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_viewModel.current != null) {
-      return _buildServiceDetail();
+    if (viewModel.current != null) {
+      return buildServiceDetail();
     }
-    return _buildServiceList();
+    return buildServiceList();
   }
 
-  Widget _buildServiceList() {
+  Widget buildServiceList() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Worship Services'),
-        backgroundColor: Colors.purpleAccent,
-      ),
+      appBar: AppBar(title: const Text('Worship Services')),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateDialog,
-        child: const Icon(Icons.add),
+        onPressed: showCreateDialog,
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: _viewModel.services.isEmpty
-          ? const Center(child: Text('No worship services yet.\nTap + to create one.', textAlign: TextAlign.center))
+      body: viewModel.services.isEmpty
+          ? const Center(
+              child: Text(
+                'No worship services yet.\nTap + to create one.',
+                textAlign: TextAlign.center,
+              ),
+            )
           : ListView.builder(
-              itemCount: _viewModel.services.length,
+              itemCount: viewModel.services.length,
               padding: const EdgeInsets.all(8.0),
               itemBuilder: (context, index) {
-                final service = _viewModel.services[index];
+                final service = viewModel.services[index];
                 return Card(
-                  elevation: 3,
-                  color: Colors.purpleAccent,
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   child: ListTile(
-                    title: Text(service.name, style: const TextStyle(color: Colors.white)),
-                    subtitle: Text('${service.songs.length} songs • ${_formatDate(service.date)}', style: const TextStyle(color: Colors.white70)),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.white70),
-                      onPressed: () => _viewModel.deleteService(service.name),
+                    title: Text(
+                      service.name,
+                      style: const TextStyle(color: AppColors.onSurface),
                     ),
-                    onTap: () => _viewModel.openService(service),
+                    subtitle: Text(
+                      '${service.songs.length} songs • ${formatDate(service.date)}',
+                      style: const TextStyle(color: AppColors.textMuted),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: AppColors.textMuted,
+                      ),
+                      onPressed: () => viewModel.deleteService(service.name),
+                    ),
+                    onTap: () => viewModel.openService(service),
                   ),
                 );
               },
@@ -62,38 +76,48 @@ class _WorshipServiceViewState extends State<WorshipServiceView> {
     );
   }
 
-  Widget _buildServiceDetail() {
+  Widget buildServiceDetail() {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_viewModel.current!.name),
-        backgroundColor: Colors.purpleAccent,
+        title: Text(viewModel.current!.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: _viewModel.goBack,
+          onPressed: viewModel.goBack,
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showSongPicker,
-        child: const Icon(Icons.add),
+        onPressed: showSongPicker,
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      body: _viewModel.selectedSongs.isEmpty
+      body: viewModel.selectedSongs.isEmpty
           ? const Center(child: Text('Tap + to add songs'))
           : ListView.builder(
-              itemCount: _viewModel.selectedSongs.length,
+              itemCount: viewModel.selectedSongs.length,
               padding: const EdgeInsets.all(8.0),
               itemBuilder: (context, index) {
                 return Card(
-                  elevation: 3,
-                  color: Colors.purpleAccent,
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   child: ListTile(
-                    leading: Text('${index + 1}', style: const TextStyle(color: Colors.white)),
-                    title: Text(_viewModel.selectedTitles[index], style: const TextStyle(color: Colors.white)),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.remove_circle, color: Colors.white70),
-                      onPressed: () => _viewModel.removeSong(index),
+                    leading: Text(
+                      '${index + 1}',
+                      style: const TextStyle(color: AppColors.onSurface),
                     ),
-                    onTap: () => _viewModel.goToSong(index),
+                    title: Text(
+                      viewModel.selectedTitles[index],
+                      style: const TextStyle(color: AppColors.onSurface),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(
+                        Icons.remove_circle,
+                        color: AppColors.textMuted,
+                      ),
+                      onPressed: () => viewModel.removeSong(index),
+                    ),
+                    onTap: () => viewModel.goToSong(index),
                   ),
                 );
               },
@@ -101,24 +125,29 @@ class _WorshipServiceViewState extends State<WorshipServiceView> {
     );
   }
 
-  void _showCreateDialog() {
-    final controller = TextEditingController();
+  void showCreateDialog() {
+    final textController = TextEditingController();
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('New Worship Service'),
         content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'e.g. Sunday Service - June 15'),
+          controller: textController,
+          decoration: const InputDecoration(
+            hintText: 'e.g. Sunday Service - June 15',
+          ),
           autofocus: true,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                _viewModel.createService(controller.text.trim());
-                Navigator.pop(context);
+              if (textController.text.trim().isNotEmpty) {
+                viewModel.createService(textController.text.trim());
+                Navigator.of(dialogContext).pop();
               }
             },
             child: const Text('Create'),
@@ -128,24 +157,28 @@ class _WorshipServiceViewState extends State<WorshipServiceView> {
     );
   }
 
-  void _showSongPicker() {
+  void showSongPicker() {
     String query = '';
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => StatefulBuilder(
+      builder: (sheetContext) => StatefulBuilder(
         builder: (context, setModalState) {
           final filtered = query.isEmpty
-              ? List.generate(_viewModel.allSongFiles.length, (i) => i)
-              : List.generate(_viewModel.allSongFiles.length, (i) => i)
-                  .where((i) => _viewModel.allSongFiles[i].toLowerCase().contains(query))
-                  .toList();
+              ? List.generate(viewModel.allSongFiles.length, (i) => i)
+              : List.generate(viewModel.allSongFiles.length, (i) => i)
+                    .where(
+                      (i) => viewModel.allSongFiles[i].toLowerCase().contains(
+                        query,
+                      ),
+                    )
+                    .toList();
 
           return DraggableScrollableSheet(
             expand: false,
             initialChildSize: 0.7,
             maxChildSize: 0.9,
-            builder: (_, controller) => Column(
+            builder: (scrollContext, scrollController) => Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -155,20 +188,23 @@ class _WorshipServiceViewState extends State<WorshipServiceView> {
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (v) => setModalState(() => query = v.toLowerCase()),
+                    onChanged: (v) =>
+                        setModalState(() => query = v.toLowerCase()),
                   ),
                 ),
                 Expanded(
                   child: ListView.builder(
-                    controller: controller,
+                    controller: scrollController,
                     itemCount: filtered.length,
                     itemBuilder: (context, i) {
                       final index = filtered[i];
                       return ListTile(
-                        title: Text(_viewModel.allSongFiles[index].replaceAll('.txt', '')),
+                        title: Text(
+                          viewModel.allSongFiles[index].replaceAll('.txt', ''),
+                        ),
                         onTap: () {
-                          _viewModel.addSong(_viewModel.allSongFiles[index]);
-                          Navigator.pop(context);
+                          viewModel.addSong(viewModel.allSongFiles[index]);
+                          Navigator.of(context).pop();
                         },
                       );
                     },
@@ -182,6 +218,5 @@ class _WorshipServiceViewState extends State<WorshipServiceView> {
     );
   }
 
-  String _formatDate(DateTime date) =>
-      '${date.month}/${date.day}/${date.year}';
+  String formatDate(DateTime date) => '${date.month}/${date.day}/${date.year}';
 }

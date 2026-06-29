@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 class BibleService {
-  List<String> _books = [];
-
-  List<String> get books => _books;
+  List<String> books = [];
 
   Future<void> loadBooks() async {
     final data = await rootBundle.loadString('assets/bible/books.json');
-    _books = List<String>.from(json.decode(data));
+    books = List<String>.from(json.decode(data));
   }
 
   Future<Map<String, dynamic>> loadBook(String bookName) async {

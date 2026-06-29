@@ -7,21 +7,21 @@ class SongEditView extends StatefulWidget {
   const SongEditView({super.key, required this.viewModel});
 
   @override
-  State<SongEditView> createState() => _SongEditViewState();
+  State<SongEditView> createState() => SongEditViewState();
 }
 
-class _SongEditViewState extends State<SongEditView> {
-  late final TextEditingController _controller;
+class SongEditViewState extends State<SongEditView> {
+  late final TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.viewModel.chordProText);
+    controller = TextEditingController(text: widget.viewModel.chordProText);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -30,13 +30,12 @@ class _SongEditViewState extends State<SongEditView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Song'),
-        backgroundColor: Colors.purpleAccent,
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () async {
-              await widget.viewModel.saveSong(_controller.text);
-              if (context.mounted) Navigator.pop(context);
+              await widget.viewModel.saveSong(controller.text);
+              if (context.mounted) Navigator.of(context).pop();
             },
           ),
         ],
@@ -44,7 +43,7 @@ class _SongEditViewState extends State<SongEditView> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: TextField(
-          controller: _controller,
+          controller: controller,
           maxLines: null,
           expands: true,
           style: const TextStyle(fontFamily: 'monospace', fontSize: 14),

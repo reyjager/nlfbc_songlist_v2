@@ -3,84 +3,58 @@ import '../../models/chord_lyric_pair.dart';
 import '../../services/song_storage_service.dart';
 
 class SongViewModel extends ChangeNotifier {
-  static const _notes = [
-    'C',
-    'C#',
-    'D',
-    'D#',
-    'E',
-    'F',
-    'F#',
-    'G',
-    'G#',
-    'A',
-    'A#',
-    'B',
+  static const notes = [
+    'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
   ];
-  static const _flats = [
-    'C',
-    'Db',
-    'D',
-    'Eb',
-    'E',
-    'F',
-    'Gb',
-    'G',
-    'Ab',
-    'A',
-    'Bb',
-    'B',
+  static const flats = [
+    'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B',
   ];
 
-  final _storage = SongStorageService();
+  final storage = SongStorageService();
 
-  String _chordProText = '';
-  String _fileName = '';
-  int _transpose = 0;
-  double _fontSize = 18.0;
+  String chordProText = '';
+  String fileName = '';
+  int transpose = 0;
+  double fontSize = 18.0;
 
-  String get chordProText => _chordProText;
-  String get fileName => _fileName;
-  int get transpose => _transpose;
-  double get fontSize => _fontSize;
-  double get chordFontSize => _fontSize - 2;
-  List<String> get lines => _chordProText.split('\n');
+  double get chordFontSize => fontSize - 2;
+  List<String> get lines => chordProText.split('\n');
 
-  Future<void> loadSong(String fileName) async {
-    _fileName = fileName;
-    _chordProText = await _storage.readSong(fileName);
+  Future<void> loadSong(String file) async {
+    fileName = file;
+    chordProText = await storage.readSong(file);
     notifyListeners();
   }
 
   Future<void> saveSong(String content) async {
-    _chordProText = content;
-    await _storage.saveSong(_fileName, content);
+    chordProText = content;
+    await storage.saveSong(fileName, content);
     notifyListeners();
   }
 
   void transposeUp() {
-    _transpose = (_transpose + 1) % 12;
+    transpose = (transpose + 1) % 12;
     notifyListeners();
   }
 
   void transposeDown() {
-    _transpose = (_transpose - 1) % 12;
+    transpose = (transpose - 1) % 12;
     notifyListeners();
   }
 
   void increaseFontSize() {
-    _fontSize += 2;
+    fontSize += 2;
     notifyListeners();
   }
 
   void decreaseFontSize() {
-    if (_fontSize > 10) {
-      _fontSize -= 2;
+    if (fontSize > 10) {
+      fontSize -= 2;
       notifyListeners();
     }
   }
 
-  String _transposeChord(String chord) {
+  String transposeChord(String chord) {
     if (chord.isEmpty) return chord;
 
     String root;
@@ -94,13 +68,13 @@ class SongViewModel extends ChangeNotifier {
       suffix = chord.substring(1);
     }
 
-    int index = _notes.indexOf(root);
-    if (index == -1) index = _flats.indexOf(root);
+    int index = notes.indexOf(root);
+    if (index == -1) index = flats.indexOf(root);
     if (index == -1) return chord;
 
-    int newIndex = (index + _transpose) % 12;
+    int newIndex = (index + transpose) % 12;
     if (newIndex < 0) newIndex += 12;
-    return _notes[newIndex] + suffix;
+    return notes[newIndex] + suffix;
   }
 
   List<ChordLyricPair> parseLine(String line) {
@@ -110,7 +84,7 @@ class SongViewModel extends ChangeNotifier {
     for (var part in parts) {
       if (part.contains(']')) {
         var splitPart = part.split(']');
-        String chord = _transposeChord(splitPart[0]);
+        String chord = transposeChord(splitPart[0]);
         pairs.add(
           ChordLyricPair(chord, splitPart.length > 1 ? splitPart[1] : ''),
         );

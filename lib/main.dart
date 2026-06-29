@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'app_theme.dart';
 import 'models/worship_service_model.dart';
 import 'modules/home/home_view.dart';
 import 'modules/tour/tour_view.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Song List',
-      theme: ThemeData(primarySwatch: Colors.purple),
+      theme: appTheme,
       home: showTour ? const TourView() : const HomeView(),
     );
   }

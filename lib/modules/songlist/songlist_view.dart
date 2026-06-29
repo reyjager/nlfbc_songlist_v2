@@ -1,62 +1,61 @@
 import 'package:flutter/material.dart';
+import '../../app_theme.dart';
 import 'songlist_viewmodel.dart';
 
 class SonglistView extends StatefulWidget {
   const SonglistView({super.key});
 
   @override
-  State<SonglistView> createState() => _SonglistViewState();
+  State<SonglistView> createState() => SonglistViewState();
 }
 
-class _SonglistViewState extends State<SonglistView> {
-  final _viewModel = SonglistViewModel();
+class SonglistViewState extends State<SonglistView> {
+  final viewModel = SonglistViewModel();
 
   @override
   void initState() {
     super.initState();
-    _viewModel.addListener(() => setState(() {}));
-    _viewModel.loadSongs();
+    viewModel.addListener(() => setState(() {}));
+    viewModel.loadSongs();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Table of Content'),
-        backgroundColor: Colors.purpleAccent,
-      ),
-      body: _viewModel.songFiles.isEmpty
+      appBar: AppBar(title: const Text('Table of Content')),
+      body: viewModel.songFiles.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Search songs...',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                      ),
                     ),
-                    onChanged: _viewModel.search,
+                    onChanged: viewModel.search,
                   ),
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _viewModel.songTitles.length,
+                    itemCount: viewModel.songTitles.length,
                     itemBuilder: (context, index) {
                       return Card(
-                        elevation: 3,
-                        color: Colors.purpleAccent,
                         child: ListTile(
                           title: Text(
-                            _viewModel.songFiles[index].replaceAll('.txt', ''),
-                            style: TextStyle(color: Colors.white),
+                            viewModel.songFiles[index].replaceAll('.txt', ''),
+                            style: const TextStyle(color: AppColors.onSurface),
                           ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.white,
-                          ),
-                          onTap: () => _viewModel.goToSong(index),
+                          trailing: const Icon(Icons.chevron_right, color: AppColors.onSurface),
+                          onTap: () => viewModel.goToSong(index),
                         ),
                       );
                     },

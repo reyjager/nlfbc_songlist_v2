@@ -2,67 +2,65 @@ import 'package:flutter/material.dart';
 import '../../services/bible_service.dart';
 
 class BibleViewModel extends ChangeNotifier {
-  final _service = BibleService();
+  final service = BibleService();
 
-  List<String> _books = [];
-  List<Map<String, dynamic>> _verses = [];
-  String _currentBook = '';
-  int _currentChapter = 1;
-  int _chapterCount = 0;
-
-  List<String> get books => _books;
-  List<Map<String, dynamic>> get verses => _verses;
-  String get currentBook => _currentBook;
-  int get currentChapter => _currentChapter;
-  int get chapterCount => _chapterCount;
+  List<String> books = [];
+  List<Map<String, dynamic>> verses = [];
+  String currentBook = '';
+  int currentChapter = 1;
+  int chapterCount = 0;
 
   Future<void> loadBooks() async {
-    await _service.loadBooks();
-    _books = _service.books;
+    await service.loadBooks();
+    books = service.books;
     notifyListeners();
+  }
+
+  Future<int> getChapterCountForBook(String book) async {
+    return await service.getChapterCount(book);
   }
 
   Future<void> selectBook(String book) async {
     if (book.isEmpty) {
-      _currentBook = '';
-      _chapterCount = 0;
-      _verses = [];
+      currentBook = '';
+      chapterCount = 0;
+      verses = [];
       notifyListeners();
       return;
     }
-    _currentBook = book;
+    currentBook = book;
     try {
-      _chapterCount = await _service.getChapterCount(book);
-      _currentChapter = 1;
-      await _loadChapter();
+      chapterCount = await service.getChapterCount(book);
+      currentChapter = 1;
+      await loadChapter();
     } catch (e) {
-      _verses = [];
-      _chapterCount = 0;
+      verses = [];
+      chapterCount = 0;
       notifyListeners();
     }
   }
 
   Future<void> nextChapter() async {
-    if (_currentChapter < _chapterCount) {
-      _currentChapter++;
-      await _loadChapter();
+    if (currentChapter < chapterCount) {
+      currentChapter++;
+      await loadChapter();
     }
   }
 
   Future<void> prevChapter() async {
-    if (_currentChapter > 1) {
-      _currentChapter--;
-      await _loadChapter();
+    if (currentChapter > 1) {
+      currentChapter--;
+      await loadChapter();
     }
   }
 
   Future<void> goToChapter(int chapter) async {
-    _currentChapter = chapter;
-    await _loadChapter();
+    currentChapter = chapter;
+    await loadChapter();
   }
 
-  Future<void> _loadChapter() async {
-    _verses = await _service.getChapter(_currentBook, _currentChapter);
+  Future<void> loadChapter() async {
+    verses = await service.getChapter(currentBook, currentChapter);
     notifyListeners();
   }
 }
